@@ -146,7 +146,8 @@ resource "azurerm_service_plan" "observe_service_plan" {
   location            = azurerm_resource_group.observe_resource_group.location
   resource_group_name = azurerm_resource_group.observe_resource_group.name
   os_type             = "Linux"
-  sku_name            = "Y1"
+  sku_name            = "EP1"
+  #worker_count = 1
 }
 
 resource "azurerm_storage_account" "observe_storage_account" {
@@ -155,8 +156,22 @@ resource "azurerm_storage_account" "observe_storage_account" {
   location                 = azurerm_resource_group.observe_resource_group.location
   account_tier             = "Standard"
   account_replication_type = "LRS" # Probably want to use ZRS when we got prime time
-}
 
+  ## Note for function to work / storage account to set, set below to true first. 
+  ## Then when function works, & ready to publish, set to false
+  ## If below is not set, then TF will complain as 403! 
+  ## --> See # https://github.com/hashicorp/terraform-provider-azurerm/issues/2977
+
+  public_network_access_enabled = true #Set to false before publishing otherwise TF errors!! 
+  allow_nested_items_to_be_public = true 
+
+  min_tls_version = "TLS1_2"
+  infrastructure_encryption_enabled = true
+  account_kind = "StorageV2"
+  is_hns_enabled = true
+
+}
+# https://github.com/hashicorp/terraform-provider-azurerm/issues/2977
 resource "azurerm_storage_container" "observe_storage_container" {
   name                  = lower("container${var.observe_customer}${local.region}-${local.sub}")
   storage_account_name  = azurerm_storage_account.observe_storage_account.name
@@ -168,12 +183,15 @@ resource "azurerm_linux_function_app" "observe_collect_function_app" {
   location            = azurerm_resource_group.observe_resource_group.location
   resource_group_name = azurerm_resource_group.observe_resource_group.name
   service_plan_id     = azurerm_service_plan.observe_service_plan.id
+  virtual_network_subnet_id = azurerm_subnet.observe_subnet2.id
 
   storage_account_name       = azurerm_storage_account.observe_storage_account.name
   storage_account_access_key = azurerm_storage_account.observe_storage_account.primary_access_key
 
   app_settings = {
     WEBSITE_RUN_FROM_PACKAGE                      = var.func_url
+    #WEBSITE_CONTENTOVERVNET	                      = 1
+    WEBSITE_VNET_ROUTE_ALL                        = 1
     AzureWebJobsDisableHomepage                   = true
     OBSERVE_DOMAIN                                = var.observe_domain
     OBSERVE_CUSTOMER                              = var.observe_customer
@@ -188,6 +206,9 @@ resource "azurerm_linux_function_app" "observe_collect_function_app" {
     EVENTHUB_TRIGGER_FUNCTION_EVENTHUB_CONNECTION = "${azurerm_eventhub_authorization_rule.observe_eventhub_access_policy.primary_connection_string}"
     # Pending resolution of https://github.com/hashicorp/terraform-provider-azurerm/issues/18026
     # APPINSIGHTS_INSTRUMENTATIONKEY = azurerm_application_insights.observe_insights.instrumentation_key 
+    
+    #FOR DEBUGGING ONLY TURNED ON 
+    APPINSIGHTS_INSTRUMENTATIONKEY = azurerm_application_insights.observe_insights.instrumentation_key 
   }
 
   identity {
@@ -195,6 +216,8 @@ resource "azurerm_linux_function_app" "observe_collect_function_app" {
   }
 
   site_config {
+    elastic_instance_minimum = 1   
+    pre_warmed_instance_count = 1
     application_stack {
       python_version = "3.9"
     }
@@ -202,9 +225,12 @@ resource "azurerm_linux_function_app" "observe_collect_function_app" {
 }
 
 # Pending resolution of https://github.com/hashicorp/terraform-provider-azurerm/issues/18026
-# resource "azurerm_application_insights" "observe_insights" {
-#   name                = "observeApplicationInsights"
-#   location            = azurerm_resource_group.observe_resource_group.location
-#   resource_group_name = azurerm_resource_group.observe_resource_group.name
-#   application_type    = "web"
-# }
+
+##FOR DEBUGGING ONLY 
+resource "azurerm_application_insights" "observe_insights" {
+  name                = "observeApplicationInsights"
+  location            = azurerm_resource_group.observe_resource_group.location
+  resource_group_name = azurerm_resource_group.observe_resource_group.name
+  application_type    = "web"
+}
+
