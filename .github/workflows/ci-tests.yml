@@ -114,6 +114,57 @@ jobs:
           exit 0
         fi
 
+    ## Save plan to artifacts  
+    - name: Publish Terraform Plan
+      if: github.event.pull_request.state != 'closed'
+      uses: actions/upload-artifact@v4
+      with:
+        name: tfplan
+        path: tfplan
+            
+
+    # Create string output of Terraform Plan
+    - name: Create String Output
+      if: github.event.pull_request.state != 'closed'
+      id: tf-plan-string
+      run: |
+        TERRAFORM_PLAN=$(terraform show -no-color tfplan)
+        
+        delimiter="$(openssl rand -hex 8)"
+        echo "summary<<${delimiter}" >> $GITHUB_OUTPUT
+        echo "## Terraform Plan Output" >> $GITHUB_OUTPUT
+        echo "<details><summary>Click to expand</summary>" >> $GITHUB_OUTPUT
+        echo "" >> $GITHUB_OUTPUT
+        echo '```terraform' >> $GITHUB_OUTPUT
+        echo "$TERRAFORM_PLAN" >> $GITHUB_OUTPUT
+        echo '```' >> $GITHUB_OUTPUT
+        echo "</details>" >> $GITHUB_OUTPUT
+        echo "${delimiter}" >> $GITHUB_OUTPUT
+      
+    # Publish Terraform Plan as task summary
+    - name: Publish Terraform Plan to Task Summary
+      if: github.event.pull_request.state != 'closed'
+      env:
+        SUMMARY: ${{ steps.tf-plan-string.outputs.summary }}
+      run: |
+        echo "$SUMMARY" >> $GITHUB_STEP_SUMMARY
+
+    # If this is a PR post the changes
+    - name: Push Terraform Output to PR
+      if: github.ref != 'refs/heads/main' && github.event.pull_request.state != 'closed'
+      uses: actions/github-script@v7
+      env:
+        SUMMARY: "${{ steps.tf-plan-string.outputs.summary }}"
+      with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const body = `${process.env.SUMMARY}`;
+            github.rest.issues.createComment({
+                issue_number: context.issue.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: body
+            })
     - name: Error in Terraform 
       if: steps.tf-plan.outputs.exitcode == 1  && github.event.pull_request.state != 'closed'
       run: exit 1
