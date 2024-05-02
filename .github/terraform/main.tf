@@ -51,6 +51,7 @@ module "terraform-azure-collection" {
   observe_domain          = var.observe_domain
   location                = var.location
   observe_token           = observe_datastream_token.github_actions_branch_token.secret
+  prevent_rg_deletion     = false
   function_app_debug_logs = true
 }
 
