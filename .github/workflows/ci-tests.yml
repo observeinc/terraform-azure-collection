@@ -18,7 +18,8 @@ concurrency:
 permissions:
   id-token: write
   contents: read
-  issues: write
+  pull-requests: write
+
 
 #These environment variables are used by the terraform azure provider to setup OIDD authenticate. 
 env:
@@ -165,6 +166,7 @@ jobs:
                 repo: context.repo.repo,
                 body: body
             })
+            
     - name: Error in Terraform 
       if: steps.tf-plan.outputs.exitcode == 1  && github.event.pull_request.state != 'closed'
       run: exit 1
