@@ -1,5 +1,5 @@
 name: 'Azure - CI Tests'
-#For now this will just create and destroy infrastructure 
+#This will create and destroy ephemeral resource groups according to GITHUB_REF and do data validaiton 
 
 on:
   pull_request:
