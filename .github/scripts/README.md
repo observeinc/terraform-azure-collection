@@ -1,5 +1,8 @@
 # Scripts for use in Github Actions Workflow
 
+See diagram from overview of [flow](../workflows/ci-tests.png)
+
+
 ## Override Script
 
 `create_override_collection.py` extracts branch name from either GITHUB_HEAD_REF or GITHUB_REF and uses it to create either a `branch` or a `branch_concat` variable. 
