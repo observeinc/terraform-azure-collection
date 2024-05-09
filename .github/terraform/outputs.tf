@@ -8,3 +8,8 @@ output "azure_dataset_id" {
   description = "Azure Dataset Id"
   value       = data.observe_dataset.azure.id
 } 
+
+output "azure_collection_function" {
+  description = "Azure Dataset Id"
+  value       = module.terraform-azure-collection.var.func_url
+} 
