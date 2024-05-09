@@ -168,6 +168,8 @@ def validate_azure_data(source: str, stale_checks_mins: int = 30, query_interval
     """
 
     AZURE_DATASET_ID = os.environ.get("AZURE_DATASET_ID")
+    AZURE_COLLECTION_FUNCTION = os.environ.get("AZURE_COLLECTION_FUNCTION")
+
     OBSERVE_TOKEN_ID = os.environ.get("OBSERVE_TOKEN_ID")
     bearer_token = get_bearer_token()
 
@@ -184,6 +186,7 @@ def validate_azure_data(source: str, stale_checks_mins: int = 30, query_interval
         # OPAL PIPELINE to execute on Dataset
         pipeline = "make_col _ob_datastream_token_id:coalesce(DATASTREAM_TOKEN_ID, string(EXTRA.datastream_token_id))| " \
                    "filter _ob_datastream_token_id = '{}'|" \
+                   "filter (string(EXTRA.collection_version) = '{}')|" \
                    "filter (string(EXTRA.source) = 'EventHub')| " \
                    "make_col timestamp:parse_timestamp(string(FIELDS.time), 'MM/DD/YYYY HH24:MI:SS')| " \
                    "make_col timestamp:if_null(timestamp,parse_isotime(string(FIELDS.time)))| " \
@@ -197,19 +200,21 @@ def validate_azure_data(source: str, stale_checks_mins: int = 30, query_interval
                    "pick_col timestamp, time_string, source, category, appName, message|" \
                    "statsby msg_count: count_distinct(message), latest_ts: last_not_null(timestamp), group_by(source)" \
                    "". \
-            format(OBSERVE_TOKEN_ID)
+            format(OBSERVE_TOKEN_ID, AZURE_COLLECTION_FUNCTION)
     elif source == "ResourceManagement":
         pipeline = "make_col _ob_datastream_token_id:coalesce(DATASTREAM_TOKEN_ID, string(EXTRA.datastream_token_id))| " \
                    "filter _ob_datastream_token_id = '{}'|" \
+                   "filter (string(EXTRA.collection_version) = '{}')|" \
                    "filter (string(EXTRA.source) = 'ResourceManagement')|" \
                    "make_col source: string(EXTRA.source)|" \
                    "make_col type:string(FIELDS.type)|" \
                    "statsby msg_count: count_distinct(type), latest_ts: last_not_null(BUNDLE_TIMESTAMP), group_by(source)" \
                    "". \
-            format(OBSERVE_TOKEN_ID)
+            format(OBSERVE_TOKEN_ID, AZURE_COLLECTION_FUNCTION)
     elif source == "VmMetrics":
         pipeline = "make_col _ob_datastream_token_id:coalesce(DATASTREAM_TOKEN_ID, string(EXTRA.datastream_token_id))| " \
                    "filter _ob_datastream_token_id = '{}'|" \
+                   "filter (string(EXTRA.collection_version) = '{}')|" \
                    "filter (string(EXTRA.source) = 'VmMetrics')| " \
                    "make_col time_string: string(FIELDS.timeseries[0].data[0].timeStamp)|" \
                    "make_col timestamp:parse_isotime(string(FIELDS.timeseries[0].data[0].timeStamp))| " \
@@ -220,7 +225,7 @@ def validate_azure_data(source: str, stale_checks_mins: int = 30, query_interval
                    "pick_col timestamp, time_string, source, metric_name|" \
                    "statsby msg_count: count_distinct(metric_name), latest_ts: last_not_null(timestamp), group_by(source)" \
                    "". \
-            format(OBSERVE_TOKEN_ID)
+            format(OBSERVE_TOKEN_ID, AZURE_COLLECTION_FUNCTION)
 
     # Query Dataset with pipeline and write results to JSON
     ds = query_dataset(bearer_token=bearer_token, dataset_id=AZURE_DATASET_ID, pipeline=pipeline,
@@ -280,6 +285,7 @@ if __name__ == '__main__':
     logger.info("Domain: {}".format(os.environ.get("OBSERVE_DOMAIN")))    
     logger.info("Dataset ID: {}".format(os.environ.get("AZURE_DATASET_ID")))        
     logger.info("Observe Token ID: {}".format(os.environ.get("OBSERVE_TOKEN_ID")))
+    logger.info("Azure Collection Function: {}".format(os.environ.get("AZURE_COLLECTION_FUNCTION")))
     logger.info("------------------------------------\n")
 
 
