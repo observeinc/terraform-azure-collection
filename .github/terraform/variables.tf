@@ -1,4 +1,5 @@
 variable "branch" {
+  type        = string
   description = "Github Action Branch Name. This will set Observe Datastream Token Name"
 }
 
