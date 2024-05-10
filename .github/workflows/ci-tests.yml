@@ -179,7 +179,7 @@ jobs:
         terraform apply -auto-approve tfplan  
 
     - name: Wait after Apply for Azure Changes 
-      if:  steps.tf-apply.outcome != 'failure' && github.event.pull_request.state != 'closed'
+      if:  steps.tf-apply.outcome != 'failure' && steps.tf-plan.outputs.exitcode == 2 && github.event.pull_request.state != 'closed'
       run: sleep 300s
       shell: bash
 
