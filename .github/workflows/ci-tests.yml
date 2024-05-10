@@ -179,14 +179,14 @@ jobs:
         terraform apply -auto-approve tfplan  
 
     - name: Wait after Apply for Azure Changes 
-      if:  steps.tf-apply.outcome != 'failure' && steps.tf-plan.outputs.exitcode == 2 && github.event.pull_request.state != 'closed'
+      if:  steps.tf-apply.outcome != 'failure' && github.event.pull_request.state != 'closed'
       run: sleep 300s
       shell: bash
 
     # Set environment variables for data validation from terraform output 
     - name: Set Data Validation Variables 
       id: prepare-data-validation
-      if:  steps.tf-apply.outcome != 'failure' && steps.tf-plan.outputs.exitcode == 2 && github.event.pull_request.state != 'closed'
+      if:  steps.tf-apply.outcome != 'failure' && github.event.pull_request.state != 'closed'
       run: |
         terraform_output=$(terraform output -json)  
         observe_token_id=$(echo $terraform_output | jq -r '.observe_token_id.value')
@@ -199,7 +199,7 @@ jobs:
       
     - name: Data Validation Test 
       uses: nick-fields/retry@v3
-      if:  steps.tf-apply.outcome != 'failure' &&  steps.tf-plan.outputs.exitcode == 2 && github.event.pull_request.state != 'closed'
+      if:  steps.tf-apply.outcome != 'failure' && github.event.pull_request.state != 'closed'
       with:
         timeout_minutes: 30
         max_attempts: 40 #Max 40 attempts (resource data can take longer depending on when the next cron job runs)
