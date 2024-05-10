@@ -176,10 +176,15 @@ jobs:
       id: tf-apply    
       if: steps.tf-plan.outputs.exitcode == 2 && github.event.pull_request.state != 'closed'
       run: |
-        terraform apply -auto-approve tfplan       
-    
+        terraform apply -auto-approve tfplan  
+
+    - name: Wait after Apply for Azure Changes 
+      if:  steps.tf-apply.outcome != 'failure' && steps.tf-plan.outputs.exitcode == 2 && github.event.pull_request.state != 'closed'
+      run: sleep 300s
+      shell: bash
+
     # Set environment variables for data validation from terraform output 
-    - name: Set Data Validation Variables and Wait If Any Changes 
+    - name: Set Data Validation Variables 
       id: prepare-data-validation
       if:  steps.tf-apply.outcome != 'failure' && steps.tf-plan.outputs.exitcode == 2 && github.event.pull_request.state != 'closed'
       run: |
@@ -190,8 +195,8 @@ jobs:
         echo "OBSERVE_TOKEN_ID=$observe_token_id" >> $GITHUB_ENV
         echo "AZURE_DATASET_ID=$azure_dataset_id" >> $GITHUB_ENV
         echo "AZURE_COLLECTION_FUNCTION=$azure_collection_function" >> $GITHUB_ENV
-        sleep 300s    
         
+      
     - name: Data Validation Test 
       uses: nick-fields/retry@v3
       if:  steps.tf-apply.outcome != 'failure' &&  steps.tf-plan.outputs.exitcode == 2 && github.event.pull_request.state != 'closed'
