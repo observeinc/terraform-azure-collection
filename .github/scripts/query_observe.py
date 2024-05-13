@@ -117,7 +117,8 @@ def send_query(bearer_token: str, query: str, params: dict = None, url_extension
         return None
 
 
-def query_dataset(bearer_token: str, dataset_id: str, pipeline: str = "", interval: str = "30m") -> list:
+def query_dataset(bearer_token: str, dataset_id: str, pipeline: str = "", interval: str = None, startTime: str = None,
+                  endTime: str = None) -> list:
     """
 
     Queries the last 30 minutes (default) of a dataset returning result of query. Uses Observe OpenAPI
@@ -125,61 +126,91 @@ def query_dataset(bearer_token: str, dataset_id: str, pipeline: str = "", interv
     @param bearer_token: bearer token for authorization
     @param dataset_id: dataset_id to query using openAPI query
     @param pipeline: OPAL Pipeline
-    @param interval: interval to query dataset, eg:"30m"
+    @param interval: Length of time window (if start or end is missing). Defaults to 15m (from observe API)
+    @param startTime: Beginning of time window as ISO time.
+    @param endTime: End of time window as ISO time. Defaults to now.
 
     @return: dataset: queried dataset  in json separated by timestamps
 
     See  https://developer.observeinc.com/#/paths/~1v1~1meta~1export~1query/post
     """
-
-    logger.info("Querying Dataset for Dataset ID: {} for interval {}".format(dataset_id, interval))
+    params = {}
     query = """
-     {
-        "query": {
-            "stages":[
-              {
-                 "input":[
-                     {
-                     "inputName": "default",
-                     "datasetId": "%s"
-                    }
-                ],
-                "stageID":"main",
-                "pipeline": "%s"
-            }
-        ]
+       {
+          "query": {
+              "stages":[
+                {
+                   "input":[
+                       {
+                       "inputName": "default",
+                       "datasetId": "%s"
+                      }
+                  ],
+                  "stageID":"main",
+                  "pipeline": "%s"
+              }
+          ]
+        }
       }
-    }
-    """ % (dataset_id, pipeline)
-    params = {
-        "interval": interval
-    }
+      """ % (dataset_id, pipeline)
+    if startTime is not None and endTime is not None:
+        logger.info("Querying Dataset for Dataset ID: {} for startTime {} and endTime {}".format(dataset_id, startTime,
+                                                                                                 endTime))
+        params = {
+            "startTime": startTime,
+            "endTime": endTime
+        }
+    elif startTime is not None and interval is not None and endTime is None:
+        logger.info(
+            "Querying Dataset for Dataset ID: {} for startTime {} and interval".format(dataset_id, startTime, interval))
+        params = {
+            "startTime": startTime,
+            "interval": interval
+        }
+    elif endTime is not None and interval is not None and startTime is None:
+        logger.info(
+            "Querying Dataset for Dataset ID: {} for interval {} and endTime".format(dataset_id, interval, endTime))
+        params = {
+            "endTime": startTime,
+            "interval": interval
+        }
+    elif interval is not None and startTime is None and endTime is None:
+        logger.info("Querying Dataset for Dataset ID: {} for interval {}".format(dataset_id, interval))
+        params = {
+            "interval": interval
+        }
+    else:
+        raise ValueError("Invalid interval, startTime or endTime arguments")
+
     dataset = send_query(bearer_token, query, params, url_extension='/export/query', type='openapi')
     return dataset
 
 
-def validate_azure_data(source: str, stale_checks_mins: int = 30, query_interval: str = "30m") -> bool:
+def validate_azure_data(source: str, stale_checks_mins: int) -> bool:
     """
 
     :param source: can be 'EventHub`, `ResourceManagement`, `VMMetrics`
-    :param stale_checks_mins: how long should difference be between received data and current timestamp
-    :param query_interval: default interval to valid from (last 30m default)
+    :param stale_checks_mins: how long should difference be between received data and current query_start_time
     :return: if source is validated from current time (true, false)
     """
 
     AZURE_DATASET_ID = os.environ.get("AZURE_DATASET_ID")
     AZURE_COLLECTION_FUNCTION = os.environ.get("AZURE_COLLECTION_FUNCTION")
-
     OBSERVE_TOKEN_ID = os.environ.get("OBSERVE_TOKEN_ID")
-    bearer_token = get_bearer_token()
+    CURRENT_TIME_ISO = os.environ.get("CURRENT_TIME_ISO")
 
+    # Query Start Time: Uses Terraform script finish time as query Start Time
+    timestamp_dt = datetime.datetime.strptime(CURRENT_TIME_ISO, '%Y-%m-%dT%H:%M:%S.%fZ')
+    unix_timestamp = timestamp_dt.replace(tzinfo=timezone.utc)
+    query_start_time_ns = int(unix_timestamp.timestamp() * 1e9)
+
+    # Query End Time: Current Time
     current_ts = datetime.datetime.now().timestamp()
-    current_ts_ns = int(current_ts * 1e9)
-    current_ts_string = datetime.datetime.fromtimestamp(current_ts, timezone.utc).strftime('%Y-%m-%dT%H:%M:%SZ')
- 
+    query_end_time = datetime.datetime.fromtimestamp(current_ts, timezone.utc).strftime('%Y-%m-%dT%H:%M:%SZ')
+
     logger.info("{}: stale_check_mins is: {} mins".format(source, stale_checks_mins))
-    logger.info("{}: query interval is: {}".format(source, query_interval))
-    logger.info("{}: Current time is: {}".format(source, current_ts_string))
+    logger.info("{}: query_start_time is: {}".format(source, CURRENT_TIME_ISO))
+    logger.info("{}: query_end_time is: {}".format(source, query_end_time))
 
     pipeline = ''
     if source == "EventHub":
@@ -198,7 +229,7 @@ def validate_azure_data(source: str, stale_checks_mins: int = 30, query_interval
                    "make_col message:string(FIELDS.properties.message)|" \
                    "make_col time_string:string(FIELDS.time)|" \
                    "pick_col timestamp, time_string, source, category, appName, message|" \
-                   "statsby msg_count: count_distinct(message), latest_ts: last_not_null(timestamp), group_by(source)" \
+                   "statsby msg_count: count_distinct(message), earliest_ts: first_not_null(timestamp), group_by(source)" \
                    "". \
             format(OBSERVE_TOKEN_ID, AZURE_COLLECTION_FUNCTION)
     elif source == "ResourceManagement":
@@ -208,7 +239,7 @@ def validate_azure_data(source: str, stale_checks_mins: int = 30, query_interval
                    "filter (string(EXTRA.source) = 'ResourceManagement')|" \
                    "make_col source: string(EXTRA.source)|" \
                    "make_col type:string(FIELDS.type)|" \
-                   "statsby msg_count: count_distinct(type), latest_ts: last_not_null(BUNDLE_TIMESTAMP), group_by(source)" \
+                   "statsby msg_count: count_distinct(type), earliest_ts: first_not_null(BUNDLE_TIMESTAMP), group_by(source)" \
                    "". \
             format(OBSERVE_TOKEN_ID, AZURE_COLLECTION_FUNCTION)
     elif source == "VmMetrics":
@@ -223,20 +254,21 @@ def validate_azure_data(source: str, stale_checks_mins: int = 30, query_interval
                    "make_col FIELDS:parse_json(string(FIELDS))|" \
                    "make_col source: string(EXTRA.source)|" \
                    "pick_col timestamp, time_string, source, metric_name|" \
-                   "statsby msg_count: count_distinct(metric_name), latest_ts: last_not_null(timestamp), group_by(source)" \
+                   "statsby msg_count: count_distinct(metric_name), earliest_ts: first_not_null(timestamp), group_by(source)" \
                    "". \
             format(OBSERVE_TOKEN_ID, AZURE_COLLECTION_FUNCTION)
 
     # Query Dataset with pipeline and write results to JSON
+    bearer_token = get_bearer_token()
     ds = query_dataset(bearer_token=bearer_token, dataset_id=AZURE_DATASET_ID, pipeline=pipeline,
-                       interval=query_interval)
+                       startTime=CURRENT_TIME_ISO, endTime=query_end_time)
     ds_file = "{}.json".format(source)
     with open(ds_file, "w") as json_file:
         json.dump(ds, json_file, indent=4)
     logger.info("{}: JSON data has been saved to {}.json".format(source, source))
     logger.info("{}: {}".format(source, ds))
 
-    # Iterate through ds and determine if pass ofr fail for data staleness check or no data
+    # Iterate through ds and determine if pass or fail for data staleness check or no data
     for item in ds:
         # Check if entries exist in query windows (pipeline)
         msg_count = int(item["msg_count"])
@@ -247,23 +279,27 @@ def validate_azure_data(source: str, stale_checks_mins: int = 30, query_interval
             logger.info("{}: > 0 msg_count entries returned within query window".format(source))
 
         # If entries exist, then check if timestamps are not stale
-        latest_ts_data_ns = int(item["latest_ts"])
-        latest_ts_data_ns_string = datetime.datetime.fromtimestamp(latest_ts_data_ns / 1E9, timezone.utc).strftime(
+        earliest_ts_data_ns = int(item["earliest_ts"])
+        earliest_ts_data_ns_string = datetime.datetime.fromtimestamp(earliest_ts_data_ns / 1E9, timezone.utc).strftime(
             '%Y-%m-%dT%H:%M:%SZ')
-        
-        
-        logger.info("{}: Latest time from data is: {}".format(source, latest_ts_data_ns_string))
-        difference_minutes = (latest_ts_data_ns - current_ts_ns) * 1E-9 * (1 / 60)
 
-        # Check if the difference is less than or equal to 30 minutes (in nanoseconds)
-        if difference_minutes > -stale_checks_mins:
-            logger.info("{}: latest_ts_data is less than {} minutes stale".format(source, stale_checks_mins))
-            logger.info("{}: Difference in minutes is: {}".format(source, difference_minutes))
+        logger.info("{}: Earliest time from data is: {}".format(source, earliest_ts_data_ns_string))
+        difference_minutes = (earliest_ts_data_ns - query_start_time_ns) * 1E-9 * (1 / 60)
+
+        # Check if the difference is less than to 30 minutes (in nanoseconds)
+        # There can be cases where data is few minutes earlier than query window because of valid from timesamp
+        # In that case, just check that its 10 mins. Eg: Query Start Time is 4:15pm but earliest timestamp can 4:10pm
+        # ^ This just means BUNDLE_TIMESTAMP was 4:15pm but we started getting data already
+        if difference_minutes > -10 and difference_minutes < stale_checks_mins:
+            logger.info("{}: earliest_ts_data is less than {} minutes stale".format(source, stale_checks_mins))
+            logger.info(
+                "{}: Difference in minutes (earliest ts - query_start_time) is: {}".format(source, difference_minutes))
             return True
 
         else:
-            logger.error("{}: latest_ts_data is more than {} minutes stale".format(source, stale_checks_mins))
-            logger.info("{}: Difference in minutes is: {}".format(source, difference_minutes))
+            logger.error("{}: earliest_ts_data is more than {} minutes stale".format(source, stale_checks_mins))
+            logger.info(
+                "{}: Difference in minutes (earliest ts - query_start_time) is: {}".format(source, difference_minutes))
             return False
     # Return False if no entries found
     logger.error("{}: Dataset is empty and has no entries within query window".format(source))
@@ -272,7 +308,6 @@ def validate_azure_data(source: str, stale_checks_mins: int = 30, query_interval
 
 if __name__ == '__main__':
 
-    
     logger = logging.getLogger(__name__)
     log_format = '%(asctime)s - %(levelname)s - %(message)s'
     log_level = logging.INFO
@@ -282,17 +317,16 @@ if __name__ == '__main__':
     logger.info("Validating Azure Data")
     logger.info("------------------------------------")
     logger.info("Customer ID: {}".format(os.environ.get("OBSERVE_CUSTOMER")))
-    logger.info("Domain: {}".format(os.environ.get("OBSERVE_DOMAIN")))    
-    logger.info("Dataset ID: {}".format(os.environ.get("AZURE_DATASET_ID")))        
+    logger.info("Domain: {}".format(os.environ.get("OBSERVE_DOMAIN")))
+    logger.info("Dataset ID: {}".format(os.environ.get("AZURE_DATASET_ID")))
     logger.info("Observe Token ID: {}".format(os.environ.get("OBSERVE_TOKEN_ID")))
     logger.info("Azure Collection Function: {}".format(os.environ.get("AZURE_COLLECTION_FUNCTION")))
+    logger.info("Terraform Script End Time: {}".format(os.environ.get("CURRENT_TIME_ISO")))
     logger.info("------------------------------------\n")
 
-
-
-    eh = validate_azure_data(source='EventHub', stale_checks_mins=30, query_interval="30m")
-    rm = validate_azure_data(source='ResourceManagement', stale_checks_mins=30, query_interval="30m")
-    vm_metrics = validate_azure_data(source='VmMetrics', stale_checks_mins=30, query_interval="30m")
+    eh = validate_azure_data(source='EventHub', stale_checks_mins=30)
+    rm = validate_azure_data(source='ResourceManagement', stale_checks_mins=30)
+    vm_metrics = validate_azure_data(source='VmMetrics', stale_checks_mins=30)
 
     if eh is False or rm is False or vm_metrics is False:
         logger.error("One or more sources are not valid")
@@ -300,6 +334,6 @@ if __name__ == '__main__':
         logger.error("ResourceManagement: {}".format(rm))
         logger.error("VmMetrics: {}".format(vm_metrics))
         sys.exit(1)
-    
+
     logger.info("All sources are valid")
     logger.info("Data Validation Passed for all sources! ")
