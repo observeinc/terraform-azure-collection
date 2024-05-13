@@ -200,7 +200,7 @@ jobs:
         echo "OBSERVE_TOKEN_ID=$observe_token_id" >> $GITHUB_ENV
         echo "AZURE_DATASET_ID=$azure_dataset_id" >> $GITHUB_ENV
         echo "AZURE_COLLECTION_FUNCTION=$azure_collection_function" >> $GITHUB_ENV
-        echo "CURRENT_TIME_ISO=$current_time_iso" >> GITHUB_ENV
+        echo "CURRENT_TIME_ISO=$current_time_iso" >> $GITHUB_ENV
         
       
     - name: Data Validation Test 
