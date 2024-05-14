@@ -249,12 +249,10 @@ def validate_azure_data(source: str, stale_checks_mins: int) -> bool:
                    "filter (string(EXTRA.source) = 'VmMetrics')| " \
                    "make_col time_string: string(FIELDS.timeseries[0].data[0].timeStamp)|" \
                    "make_col timestamp:parse_isotime(string(FIELDS.timeseries[0].data[0].timeStamp))| " \
-                   "set_valid_from options(max_time_diff:30m), timestamp|" \
                    "make_col metric_name:string(FIELDS.name.value)|" \
                    "make_col FIELDS:parse_json(string(FIELDS))|" \
                    "make_col source: string(EXTRA.source)|" \
-                   "pick_col timestamp, time_string, source, metric_name|" \
-                   "statsby msg_count: count_distinct(metric_name), earliest_ts: first_not_null(timestamp), group_by(source)" \
+                   "statsby msg_count: count_distinct(metric_name), earliest_ts: first_not_null(BUNDLE_TIMESTAMP), group_by(source)" \
                    "". \
             format(OBSERVE_TOKEN_ID, AZURE_COLLECTION_FUNCTION)
 
