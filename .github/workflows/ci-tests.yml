@@ -178,14 +178,14 @@ jobs:
       run: |
         terraform apply -auto-approve tfplan  
 
+    - name: Get current time
+      uses: josStorer/get-current-time@v2
+      id: current-time
+
     - name: Wait after Apply for Azure Changes 
       if:  steps.tf-apply.outcome != 'failure' && steps.tf-plan.outputs.exitcode == 2 && github.event.pull_request.state != 'closed'
       run: sleep 300s
       shell: bash
-
-    - name: Get current time
-      uses: josStorer/get-current-time@v2
-      id: current-time
 
     # Set environment variables for data validation from terraform output 
     - name: Set Data Validation Variables 
