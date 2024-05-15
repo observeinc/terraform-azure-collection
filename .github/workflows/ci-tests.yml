@@ -75,7 +75,7 @@ jobs:
        python ${{github.workspace}}/.github/scripts/create_override_collection.py
        echo "Setting additional TF_VAR variables"
        python ${{github.workspace}}/.github/scripts/set_additional_tf_variables.py 
-      
+             
    
     #Initialize a new or existing Terraform working directory by creating initial files, loading any remote state, downloading modules, etc.
     - name: Terraform Init
