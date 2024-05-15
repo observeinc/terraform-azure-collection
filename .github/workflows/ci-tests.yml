@@ -7,7 +7,8 @@ on:
   push:
     branches:
       - main
-
+  schedule:
+    - cron: '0 0 * * *' #At 00:00Z Daily 
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
