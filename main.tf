@@ -102,16 +102,7 @@ resource "azurerm_key_vault_secret" "observe_password" {
 resource "azurerm_role_assignment" "observe_role_assignment" {
   scope                = data.azurerm_subscription.primary.id
   role_definition_name = "Monitoring Reader"
-  principal_id         = azuread_service_principal.observe_service_principal.object_id
-  condition_version    = "2.0"
-  condition            = <<-EOT
-  ( 
-   (
-   resource.resourceType == 'Microsoft.Web/sites/functions' &&
-   resource.name == 'gh-fa-main'
-   )
- )
-EOT
+  principal_id         = azuread_service_principal.observe_service_principal.object_id 
   
 }
 
