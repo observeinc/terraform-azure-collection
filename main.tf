@@ -231,3 +231,4 @@ resource "azurerm_monitor_diagnostic_setting" "observe_collect_function_app" {
 #   resource_group_name = azurerm_resource_group.observe_resource_group.name
 #   application_type    = "web"
 # }
+#
