@@ -41,7 +41,7 @@ jobs:
     
   ci-tests-ephemeral:
     name: 'Collection CI Tests'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-observe-agent-8cpu
     defaults:
         run:
             working-directory: ${{github.workspace}}/.github/terraform
