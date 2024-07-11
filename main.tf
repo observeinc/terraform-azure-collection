@@ -222,8 +222,8 @@ resource "azurerm_linux_function_app" "observe_collect_function_app_dup" {
     AZURE_CLIENT_LOCATION                         = lower(replace(var.location, " ", ""))
     timer_resources_func_schedule                 = var.timer_resources_func_schedule
     timer_vm_metrics_func_schedule                = var.timer_vm_metrics_func_schedule
-    EVENTHUB_TRIGGER_FUNCTION_EVENTHUB_NAME       = azurerm_eventhub.observe_eventhub.name
-    EVENTHUB_TRIGGER_FUNCTION_EVENTHUB_CONNECTION = "${azurerm_eventhub_authorization_rule.observe_eventhub_access_policy.primary_connection_string}"
+    EVENTHUB_TRIGGER_FUNCTION_EVENTHUB_NAME       = "gh-eh-gabe-data-factory"
+    EVENTHUB_TRIGGER_FUNCTION_EVENTHUB_CONNECTION = "Endpoint=sb://gh-ehns-gabe-data-factory.servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=oCM16uR9DnNSvgH3qiHZtcSnhdZr6KD/t+AEhEJHSZU="
     # Pending resolution of https://github.com/hashicorp/terraform-provider-azurerm/issues/18026
     # APPINSIGHTS_INSTRUMENTATIONKEY = azurerm_application_insights.observe_insights.instrumentation_key 
   }, var.app_settings)
