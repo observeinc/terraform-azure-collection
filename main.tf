@@ -201,6 +201,44 @@ resource "azurerm_linux_function_app" "observe_collect_function_app" {
   }
 }
 
+resource "azurerm_linux_function_app" "observe_collect_function_app_dup" {
+  name                = "observeAppDup-${var.observe_customer}-${var.location}-${local.sub}"
+  location            = azurerm_resource_group.observe_resource_group.location
+  resource_group_name = azurerm_resource_group.observe_resource_group.name
+  service_plan_id     = azurerm_service_plan.observe_service_plan.id
+
+  storage_account_name       = azurerm_storage_account.observe_storage_account.name
+  storage_account_access_key = azurerm_storage_account.observe_storage_account.primary_access_key
+
+  app_settings = merge({
+    WEBSITE_RUN_FROM_PACKAGE                      = var.func_url
+    AzureWebJobsDisableHomepage                   = true
+    OBSERVE_DOMAIN                                = var.observe_domain
+    OBSERVE_CUSTOMER                              = var.observe_customer
+    OBSERVE_TOKEN                                 = "@Microsoft.KeyVault(SecretUri=${azurerm_key_vault_secret.observe_token.id})"
+    AZURE_TENANT_ID                               = data.azuread_client_config.current.tenant_id
+    AZURE_CLIENT_ID                               = azuread_application.observe_app_registration.client_id
+    AZURE_CLIENT_SECRET                           = "@Microsoft.KeyVault(SecretUri=${azurerm_key_vault_secret.observe_password.id})"
+    AZURE_CLIENT_LOCATION                         = lower(replace(var.location, " ", ""))
+    timer_resources_func_schedule                 = var.timer_resources_func_schedule
+    timer_vm_metrics_func_schedule                = var.timer_vm_metrics_func_schedule
+    EVENTHUB_TRIGGER_FUNCTION_EVENTHUB_NAME       = azurerm_eventhub.observe_eventhub.name
+    EVENTHUB_TRIGGER_FUNCTION_EVENTHUB_CONNECTION = "${azurerm_eventhub_authorization_rule.observe_eventhub_access_policy.primary_connection_string}"
+    # Pending resolution of https://github.com/hashicorp/terraform-provider-azurerm/issues/18026
+    # APPINSIGHTS_INSTRUMENTATIONKEY = azurerm_application_insights.observe_insights.instrumentation_key 
+  }, var.app_settings)
+
+  identity {
+    type = "SystemAssigned"
+  }
+
+  site_config {
+    application_stack {
+      python_version = "3.9"
+    }
+  }
+}
+
 #### Event Hub Debug 
 data "azurerm_eventhub_namespace_authorization_rule" "root_namespace_access_policy" {
   name                = "RootManageSharedAccessKey"
