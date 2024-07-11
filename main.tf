@@ -238,10 +238,10 @@ resource "azurerm_linux_function_app" "observe_collect_function_app_dup" {
     AZURE_CLIENT_ID                               = azuread_application.observe_app_registration.client_id
     AZURE_CLIENT_SECRET                           = "@Microsoft.KeyVault(SecretUri=${azurerm_key_vault_secret.observe_password.id})"
     AZURE_CLIENT_LOCATION                         = lower(replace(var.location, " ", ""))
-    timer_resources_func_schedule                 = var.timer_resources_func_schedule
-    timer_vm_metrics_func_schedule                = var.timer_vm_metrics_func_schedule
-    EVENTHUB_TRIGGER_FUNCTION_EVENTHUB_NAME       = "gh-eh-gabe-data-factory"
-    EVENTHUB_TRIGGER_FUNCTION_EVENTHUB_CONNECTION = "Endpoint=sb://gh-ehns-gabe-data-factory.servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=oCM16uR9DnNSvgH3qiHZtcSnhdZr6KD/t+AEhEJHSZU="
+    timer_resources_func_schedule                 = "0 0 0 1 * *" #Once a month
+    timer_vm_metrics_func_schedule                = "0 0 0 1 * *"
+    EVENTHUB_TRIGGER_FUNCTION_EVENTHUB_NAME       = "gh-eh-gabe-data-factory" # Triggers from another EH 
+    EVENTHUB_TRIGGER_FUNCTION_EVENTHUB_CONNECTION = "Endpoint=sb://gh-ehns-gabe-data-factory.servicebus.windows.net/;SharedAccessKeyName=gh-ehap-gabe-data-factory;SharedAccessKey=dAUdeKRdtTA7dLUsmzgruOR2SjoDWhdFL+AEhCsPmK0=;EntityPath=gh-eh-gabe-data-factory"
     # Pending resolution of https://github.com/hashicorp/terraform-provider-azurerm/issues/18026
     # APPINSIGHTS_INSTRUMENTATIONKEY = azurerm_application_insights.observe_insights.instrumentation_key 
   }, var.app_settings)
