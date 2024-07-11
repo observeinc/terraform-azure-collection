@@ -73,6 +73,24 @@ resource "azurerm_key_vault_access_policy" "app" {
   ]
 }
 
+resource "azurerm_key_vault_access_policy" "app_dup" {
+  key_vault_id = azurerm_key_vault.key_vault.id
+  tenant_id    = data.azuread_client_config.current.tenant_id
+  object_id    = lookup(azurerm_linux_function_app.observe_collect_function_app_dup.identity[0], "principal_id")
+
+
+  secret_permissions = [
+    "Backup",
+    "Restore",
+    "Get",
+    "Set",
+    "List",
+    "Delete",
+    "Purge",
+  ]
+}
+
+
 resource "azurerm_key_vault_secret" "observe_token" {
   name         = "observe-token"
   value        = var.observe_token
