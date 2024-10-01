@@ -132,7 +132,7 @@ resource "azurerm_eventhub" "observe_eventhub" {
 }
 
 resource "azurerm_eventhub_authorization_rule" "observe_eventhub_access_policy" {
-  name                = "observeSharedAccessPolicy-${var.observe_customer}-${var.location}-${local.sub}"
+  name                = "observeAccessPolicy-${var.observe_customer}-${var.location}-${local.sub}"
   namespace_name      = azurerm_eventhub_namespace.observe_eventhub_namespace.name
   eventhub_name       = azurerm_eventhub.observe_eventhub.name
   resource_group_name = azurerm_resource_group.observe_resource_group.name
