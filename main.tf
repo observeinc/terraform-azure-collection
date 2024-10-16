@@ -157,12 +157,6 @@ resource "azurerm_storage_account" "observe_storage_account" {
   account_replication_type = "LRS" # Probably want to use ZRS when we got prime time
 }
 
-resource "azurerm_storage_container" "observe_storage_container" {
-  name                  = lower("container${var.observe_customer}${local.region}-${local.sub}")
-  storage_account_name  = azurerm_storage_account.observe_storage_account.name
-  container_access_type = "private"
-}
-
 resource "azurerm_linux_function_app" "observe_collect_function_app" {
   name                = "observeApp-${var.observe_customer}-${var.location}-${local.sub}"
   location            = azurerm_resource_group.observe_resource_group.location
