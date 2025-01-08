@@ -151,6 +151,7 @@ resource "azurerm_service_plan" "observe_service_plan" {
   resource_group_name = azurerm_resource_group.observe_resource_group.name
   os_type             = "Linux"
   sku_name            = "EP1"
+  maximum_elastic_worker_count = 1
 }
 
 
