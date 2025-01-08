@@ -153,14 +153,14 @@ resource "azurerm_service_plan" "observe_service_plan" {
   sku_name            = "Y1"
 }
 
-# #SECOND SERVICE PLAN FOR FLEX 
-# resource "azurerm_service_plan" "observe_service_plan_flex" {
-#   name                = "observeServicePlanSecured-${var.observe_customer}${var.location}-${local.sub}"
-#   location            = azurerm_resource_group.observe_resource_group.location
-#   resource_group_name = azurerm_resource_group.observe_resource_group.name
-#   os_type             = "Linux"
-#   sku_name            = "FC1"
-# }
+#SECOND SERVICE PLAN FOR FLEX 
+resource "azurerm_service_plan" "observe_service_plan_flex" {
+  name                = "observeServicePlanSecured-${var.observe_customer}${var.location}-${local.sub}"
+  location            = azurerm_resource_group.observe_resource_group.location
+  resource_group_name = azurerm_resource_group.observe_resource_group.name
+  os_type             = "Linux"
+  sku_name            = "FC1"
+}
 
 
 resource "azurerm_storage_account" "observe_storage_account" {
