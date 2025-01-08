@@ -173,7 +173,7 @@ resource "azurerm_storage_account" "observe_storage_account_secured" {
 #FILE SHARE IN SECURED STORAGE ACCOUNT
 resource "azurerm_storage_share" "observe_storage_account_secured_share" {
   name               = "gh-fa-nikhil-flex-plan-pvt-endpoint-aea2"# Manually set from storage account 
-  storage_account_id = azurerm_storage_account.observe_storage_account_secured.id
+  storage_account_name = azurerm_storage_account.observe_storage_account_secured.name
   quota              = 102400 
 }
 
