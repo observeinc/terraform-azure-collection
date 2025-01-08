@@ -165,7 +165,7 @@ resource "azurerm_storage_account" "observe_storage_account" {
 
 #SECURED STORAGE ACCOUNT
 resource "azurerm_storage_account" "observe_storage_account_secured" {
-  name                     = lower("${var.observe_customer}${local.region}${local.sub}Sec")
+  name                     = lower("${var.observe_customer}${local.region}secured")
   resource_group_name      = azurerm_resource_group.observe_resource_group.name
   location                 = azurerm_resource_group.observe_resource_group.location
   account_tier             = "Standard"
