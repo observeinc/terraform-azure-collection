@@ -1,3 +1,5 @@
+# MANUAL TRYING OUT PVT. ENDPOINT 
+
 # NOTE: Azure Functions Core Tools must be installed locally
 # https://learn.microsoft.com/en-us/azure/azure-functions/functions-run-local?tabs=v4%2Cmacos%2Ccsharp%2Cportal%2Cbash#install-the-azure-functions-core-tools
 locals {
