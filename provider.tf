@@ -9,11 +9,10 @@ terraform {
 
 # Configure the Microsoft Azure Provider
 provider "azurerm" {
-  storage_use_azuread = true
+  
   features {
     resource_group {
       prevent_deletion_if_contains_resources = var.prevent_rg_deletion
     }
-    
   }
 }
