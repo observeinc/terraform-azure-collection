@@ -173,12 +173,12 @@ resource "azurerm_storage_account" "observe_storage_account_secured" {
   public_network_access_enabled = "false"
 }
 
-#FILE SHARE IN SECURED STORAGE ACCOUNT
-resource "azurerm_storage_share" "observe_storage_account_secured_share" {
-  name               = "gh-fa-nikhil-flex-plan-pvt-endpoint-aea2"# Manually set from storage account 
-  storage_account_name = azurerm_storage_account.observe_storage_account_secured.name
-  quota              = 102400 
-}
+# #FILE SHARE IN SECURED STORAGE ACCOUNT
+# resource "azurerm_storage_share" "observe_storage_account_secured_share" {
+#   name               = "gh-fa-nikhil-flex-plan-pvt-endpoint-aea2"# Manually set from storage account 
+#   storage_account_name = azurerm_storage_account.observe_storage_account_secured.name
+#   quota              = 102400 
+# }
 
 
 resource "azurerm_linux_function_app" "observe_collect_function_app" {
