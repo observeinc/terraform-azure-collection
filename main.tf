@@ -161,6 +161,8 @@ resource "azurerm_storage_account" "observe_storage_account" {
   location                 = azurerm_resource_group.observe_resource_group.location
   account_tier             = "Standard"
   account_replication_type = "LRS" # Probably want to use ZRS when we got prime time
+  allow_nested_items_to_be_public = "false"
+
 }
 
 #SECURED STORAGE ACCOUNT
@@ -170,7 +172,7 @@ resource "azurerm_storage_account" "observe_storage_account_secured" {
   location                 = azurerm_resource_group.observe_resource_group.location
   account_tier             = "Standard"
   account_replication_type = "LRS" 
-  #public_network_access_enabled = "false"
+  public_network_access_enabled = "false"
 }
 
 #FILE SHARE IN SECURED STORAGE ACCOUNT
