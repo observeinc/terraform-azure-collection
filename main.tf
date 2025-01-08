@@ -153,14 +153,14 @@ resource "azurerm_service_plan" "observe_service_plan" {
   sku_name            = "Y1"
 }
 
-#SECOND SERVICE PLAN FOR FLEX 
-resource "azurerm_service_plan" "observe_service_plan_flex" {
-  name                = "observeServicePlanSecured-${var.observe_customer}${var.location}-${local.sub}"
-  location            = azurerm_resource_group.observe_resource_group.location
-  resource_group_name = azurerm_resource_group.observe_resource_group.name
-  os_type             = "Linux"
-  sku_name            = "FC1"
-}
+# #SECOND SERVICE PLAN FOR FLEX 
+# resource "azurerm_service_plan" "observe_service_plan_flex" {
+#   name                = "observeServicePlanSecured-${var.observe_customer}${var.location}-${local.sub}"
+#   location            = azurerm_resource_group.observe_resource_group.location
+#   resource_group_name = azurerm_resource_group.observe_resource_group.name
+#   os_type             = "Linux"
+#   sku_name            = "FC1"
+# }
 
 
 resource "azurerm_storage_account" "observe_storage_account" {
@@ -171,22 +171,22 @@ resource "azurerm_storage_account" "observe_storage_account" {
   account_replication_type = "LRS" # Probably want to use ZRS when we got prime time
 }
 
-#SECURED STORAGE ACCOUNT
-resource "azurerm_storage_account" "observe_storage_account_secured" {
-  name                     = lower("${var.observe_customer}${local.region}${local.sub}")
-  resource_group_name      = azurerm_resource_group.observe_resource_group.name
-  location                 = azurerm_resource_group.observe_resource_group.location
-  account_tier             = "Standard"
-  account_replication_type = "LRS" 
-  public_network_access_enabled = "false"
-}
+# #SECURED STORAGE ACCOUNT
+# resource "azurerm_storage_account" "observe_storage_account_secured" {
+#   name                     = lower("${var.observe_customer}${local.region}${local.sub}")
+#   resource_group_name      = azurerm_resource_group.observe_resource_group.name
+#   location                 = azurerm_resource_group.observe_resource_group.location
+#   account_tier             = "Standard"
+#   account_replication_type = "LRS" 
+#   public_network_access_enabled = "false"
+# }
 
-#FILE SHARE IN SECURED STORAGE ACCOUNT
-resource "azurerm_storage_share" "observe_storage_account_secured_share" {
-  name               = "gh-fa-nikhil-flex-plan-pvt-endpoint-aea2"# Manually set from storage account 
-  storage_account_name = azurerm_storage_account.observe_storage_account_secured.name
-  quota              = 102400 
-}
+# #FILE SHARE IN SECURED STORAGE ACCOUNT
+# resource "azurerm_storage_share" "observe_storage_account_secured_share" {
+#   name               = "gh-fa-nikhil-flex-plan-pvt-endpoint-aea2"# Manually set from storage account 
+#   storage_account_name = azurerm_storage_account.observe_storage_account_secured.name
+#   quota              = 102400 
+# }
 
 
 resource "azurerm_linux_function_app" "observe_collect_function_app" {
