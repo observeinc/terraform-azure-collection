@@ -143,12 +143,13 @@ resource "azurerm_eventhub_authorization_rule" "observe_eventhub_access_policy" 
   manage              = false
 }
 
+#UPDATED SERVICE PLAN TO FLEX 
 resource "azurerm_service_plan" "observe_service_plan" {
   name                = "observeServicePlan-${var.observe_customer}${var.location}-${local.sub}"
   location            = azurerm_resource_group.observe_resource_group.location
   resource_group_name = azurerm_resource_group.observe_resource_group.name
   os_type             = "Linux"
-  sku_name            = "Y1"
+  sku_name            = "FC1"
 }
 
 resource "azurerm_storage_account" "observe_storage_account" {
@@ -158,6 +159,24 @@ resource "azurerm_storage_account" "observe_storage_account" {
   account_tier             = "Standard"
   account_replication_type = "LRS" # Probably want to use ZRS when we got prime time
 }
+
+#SECURED STORAGE ACCOUNT
+resource "azurerm_storage_account" "observe_storage_account_secured" {
+  name                     = lower("${var.observe_customer}${local.region}${local.sub}")
+  resource_group_name      = azurerm_resource_group.observe_resource_group.name
+  location                 = azurerm_resource_group.observe_resource_group.location
+  account_tier             = "Standard"
+  account_replication_type = "LRS" 
+  public_network_access_enabled = "false"
+}
+
+#FILE SHARE IN SECURED STORAGE ACCOUNT
+resource "azurerm_storage_share" "observe_storage_account_secured_share" {
+  name               = "gh-fa-nikhil-flex-plan-pvt-endpoint-aea2"# Manually set from storage account 
+  storage_account_id = azurerm_storage_account.observe_storage_account_secured.id
+  quota              = 102400 
+}
+
 
 resource "azurerm_linux_function_app" "observe_collect_function_app" {
   name                = "observeApp-${var.observe_customer}-${var.location}-${local.sub}"
