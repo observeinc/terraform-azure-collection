@@ -143,14 +143,25 @@ resource "azurerm_eventhub_authorization_rule" "observe_eventhub_access_policy" 
   manage              = false
 }
 
-#UPDATED SERVICE PLAN TO FLEX 
+
+
 resource "azurerm_service_plan" "observe_service_plan" {
+  name                = "observeServicePlan-${var.observe_customer}${var.location}-${local.sub}"
+  location            = azurerm_resource_group.observe_resource_group.location
+  resource_group_name = azurerm_resource_group.observe_resource_group.name
+  os_type             = "Linux"
+  sku_name            = "Y1"
+}
+
+#SECOND SERVICE PLAN FOR FLEX 
+resource "azurerm_service_plan" "observe_service_plan_flex" {
   name                = "observeServicePlan-${var.observe_customer}${var.location}-${local.sub}"
   location            = azurerm_resource_group.observe_resource_group.location
   resource_group_name = azurerm_resource_group.observe_resource_group.name
   os_type             = "Linux"
   sku_name            = "FC1"
 }
+
 
 resource "azurerm_storage_account" "observe_storage_account" {
   name                     = lower("${var.observe_customer}${local.region}${local.sub}")
