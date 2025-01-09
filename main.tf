@@ -37,6 +37,10 @@ resource "azurerm_key_vault" "key_vault" {
   tenant_id           = data.azuread_client_config.current.tenant_id
 
   sku_name = "standard"
+
+  network_acls = {
+    bypass = "AzureServices"
+    default_action = "Deny"
 }
 
 resource "azurerm_key_vault_access_policy" "user" {
