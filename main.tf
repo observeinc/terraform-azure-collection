@@ -922,9 +922,9 @@ resource "azurerm_monitor_diagnostic_setting" "observe_collect_function_app" {
 
 
 # Pending resolution of https://github.com/hashicorp/terraform-provider-azurerm/issues/18026
-# resource "azurerm_application_insights" "observe_insights" {
-#   name                = "observeApplicationInsights"
-#   location            = azurerm_resource_group.observe_resource_group.location
-#   resource_group_name = azurerm_resource_group.observe_resource_group.name
-#   application_type    = "web"
-# }
+resource "azurerm_application_insights" "observe_insights" {
+  name                = "observeApplicationInsights"
+  location            = azurerm_resource_group.observe_resource_group.location
+  resource_group_name = azurerm_resource_group.observe_resource_group.name
+  application_type    = "web"
+}
