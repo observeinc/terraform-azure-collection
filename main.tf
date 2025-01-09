@@ -163,8 +163,8 @@ resource "azurerm_storage_account" "observe_storage_account" {
   allow_nested_items_to_be_public = false 
   network_rules {
     default_action = "Deny"
-    #ip_rules = local.ip_rules
-    ip_rules = ["4.150.128.0/18"]
+    ip_rules = local.ip_rules
+    #ip_rules = ["4.150.128.0/18"]
   }
 }
 
