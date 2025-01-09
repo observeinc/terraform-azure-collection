@@ -164,8 +164,7 @@ resource "azurerm_storage_account" "observe_storage_account" {
   network_rules {
     bypass         = "AzureServices"
     default_action = "Deny"
-    #ip_rules = local.ip_rules
-    ip_rules = azurerm_linux_function_app.observe_collect_function_app.outbound_ip_address_list
+    ip_rules = local.ip_rules
   }
 }
 

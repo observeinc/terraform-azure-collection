@@ -1,3 +1,7 @@
+## TO RETRIEVE IPS FOR REGION 
+# DOWNLOAD https://www.microsoft.com/en-us/download/details.aspx?id=56519
+# FIND AzureCloud.<YOUR_FUNCTION_APP_REGION> to find all possible outbound ips for function app 
+
 locals {
   function_app_outbound_ip = azurerm_linux_function_app.observe_collect_function_app.possible_outbound_ip_address_list
   ip_rules = [ #CENTRAL US ADDRESSES 
