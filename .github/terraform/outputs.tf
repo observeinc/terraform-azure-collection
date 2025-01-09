@@ -13,3 +13,7 @@ output "azure_collection_function" {
   description = "Azure Dataset Id"
   value       = module.terraform-azure-collection.function_url
 } 
+
+output "outbound_ip_address_list" {
+  value = module.terraform-azure-collection.outbound_ip_address_list
+}
