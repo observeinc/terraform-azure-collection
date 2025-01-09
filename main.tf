@@ -41,7 +41,6 @@ resource "azurerm_key_vault" "key_vault" {
     bypass = "AzureServices"
     default_action = "Deny"
     #ip_rules = local.ip_rules
-    ip_rules = azurerm_linux_function_app.observe_collect_function_app.possible_outbound_ip_address_list
   }
 }
 
