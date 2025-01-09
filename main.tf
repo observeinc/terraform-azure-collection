@@ -160,6 +160,13 @@ resource "azurerm_storage_account" "observe_storage_account" {
   location                 = azurerm_resource_group.observe_resource_group.location
   account_tier             = "Standard"
   account_replication_type = "LRS" # Probably want to use ZRS when we got prime time
+  allow_nested_items_to_be_public = false 
+  network_rules {
+    bypass         = "AzureServices"
+    default_action = "Deny"
+    #ip_rules = local.ip_rules
+    ip_rules = azurerm_linux_function_app.observe_collect_function_app.outbound_ip_address_list
+  }
 }
 
 resource "azurerm_linux_function_app" "observe_collect_function_app" {
