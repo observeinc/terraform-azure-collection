@@ -42,7 +42,7 @@ resource "azurerm_key_vault" "key_vault" {
     bypass = "None"
     default_action = "Deny"
     ip_rules = [
-       [
+       
           "4.150.128.0/18",
           "4.150.192.0/19",
           "4.249.128.0/17",
@@ -740,7 +740,6 @@ resource "azurerm_key_vault" "key_vault" {
           "2a01:111:f403:e01e::/64",
           "2a01:111:f403:f904::/62"
         ],
-    ]
   }
 }
 
