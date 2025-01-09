@@ -146,7 +146,8 @@ resource "azurerm_service_plan" "observe_service_plan" {
   location            = azurerm_resource_group.observe_resource_group.location
   resource_group_name = azurerm_resource_group.observe_resource_group.name
   os_type             = "Linux"
-  sku_name            = "Y1"
+  sku_name            = "EP1"
+  maximum_elastic_worker_count = 10
 }
 
 resource "azurerm_storage_account" "observe_storage_account" {
@@ -155,6 +156,7 @@ resource "azurerm_storage_account" "observe_storage_account" {
   location                 = azurerm_resource_group.observe_resource_group.location
   account_tier             = "Standard"
   account_replication_type = "LRS" # Probably want to use ZRS when we got prime time
+  allow_nested_items_to_be_public = false
 }
 
 resource "azurerm_linux_function_app" "observe_collect_function_app" {
@@ -189,6 +191,8 @@ resource "azurerm_linux_function_app" "observe_collect_function_app" {
   }
 
   site_config {
+    elastic_instance_minimum = 1    # Add EP Settings 
+    pre_warmed_instance_count = 1
     application_stack {
       python_version = "3.9"
     }
