@@ -170,7 +170,7 @@ resource "azurerm_linux_function_app" "observe_collect_function_app" {
 
   app_settings = merge({
     WEBSITE_RUN_FROM_PACKAGE                      = var.func_url
-    WEBSITE_VNET_ROUTE_ALL                        = true  
+    WEBSITE_VNET_ROUTE_ALL                        = 1
     AzureWebJobsDisableHomepage                   = true
     OBSERVE_DOMAIN                                = var.observe_domain
     OBSERVE_CUSTOMER                              = var.observe_customer
