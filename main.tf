@@ -210,11 +210,12 @@ resource "azurerm_linux_function_app" "observe_collect_function_app" {
     application_stack {
       python_version = "3.9"
     }
-    ip_restriction {
-      name                      = "AllowTriggerVNET"
-      action                    = "Allow"
-      virtual_network_subnet_id = azurerm_subnet.observe_subnet.id
-    }
+    # Only needed if Event Hub is in same VNET 
+    # ip_restriction {
+    #   name                      = "AllowTriggerVNET"
+    #   action                    = "Allow"
+    #   virtual_network_subnet_id = azurerm_subnet.observe_subnet.id
+    # }
   }
 }
 
