@@ -39,6 +39,7 @@ resource "azurerm_key_vault" "key_vault" {
     default_action = "Deny"
     bypass         = "AzureServices"
     virtual_network_subnet_ids = [azurerm_subnet.observe_subnet.id]
+    ip_rules = [] #You will have to add the IP address of the machine running terraform 
   }
 
   sku_name = "standard"
@@ -162,6 +163,12 @@ resource "azurerm_storage_account" "observe_storage_account" {
   account_tier             = "Standard"
   account_replication_type = "LRS" # Probably want to use ZRS when we got prime time
   allow_nested_items_to_be_public = false
+
+  network_rules {
+    default_action = "Deny"
+    virtual_network_subnet_ids = [azurerm_subnet.observe_subnet.id]
+    ip_rules = [] #You will have to add the IP address of the machine running terraform
+  }
 }
 
 resource "azurerm_linux_function_app" "observe_collect_function_app" {
