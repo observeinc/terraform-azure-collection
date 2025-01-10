@@ -164,6 +164,7 @@ resource "azurerm_linux_function_app" "observe_collect_function_app" {
   location            = azurerm_resource_group.observe_resource_group.location
   resource_group_name = azurerm_resource_group.observe_resource_group.name
   service_plan_id     = azurerm_service_plan.observe_service_plan.id
+  virtual_network_subnet_id = azurerm_subnet.observe_subnet.id
 
   storage_account_name       = azurerm_storage_account.observe_storage_account.name
   storage_account_access_key = azurerm_storage_account.observe_storage_account.primary_access_key
