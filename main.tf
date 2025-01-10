@@ -211,7 +211,7 @@ resource "azurerm_linux_function_app" "observe_collect_function_app" {
       python_version = "3.9"
     }
     ip_restriction {
-      name = "Allow Trigger from Virtual Network"
+      name = "AllowTriggerVNET"
       action = "Allow"
       virtual_network_subnet_id = azurerm_subnet.observe_subnet.id
   }
