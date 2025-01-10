@@ -211,6 +211,12 @@ resource "azurerm_linux_function_app" "observe_collect_function_app" {
       python_version = "3.9"
     }
   }
+
+  ip_restriction {
+    name = "Allow EventHub"
+    service_tag = "EH_ALLOW"
+    action = "Allow"
+  }
 }
 
 #### Event Hub Debug 
