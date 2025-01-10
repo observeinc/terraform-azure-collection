@@ -35,6 +35,11 @@ resource "azurerm_key_vault" "key_vault" {
   location            = var.location
   resource_group_name = azurerm_resource_group.observe_resource_group.name
   tenant_id           = data.azuread_client_config.current.tenant_id
+  network_acls {
+    default_action = "Deny"
+    bypass         = "AzureServices"
+    virtual_network_subnet_ids = [azurerm_subnet.observe_subnet.id]
+  }
 
   sku_name = "standard"
 }

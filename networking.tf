@@ -4,6 +4,8 @@ resource "azurerm_virtual_network" "observe_vnet" {
   location            = azurerm_resource_group.observe_resource_group.location
   resource_group_name = azurerm_resource_group.observe_resource_group.name
 }
+
+#Delegated subnet for function app 
 resource "azurerm_subnet" "observe_subnet" {
   name                 = "observeSubNet-${var.observe_customer}-${var.location}-${local.sub}"
   resource_group_name  = azurerm_resource_group.observe_resource_group.name
