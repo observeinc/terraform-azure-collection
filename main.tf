@@ -211,8 +211,9 @@ resource "azurerm_linux_function_app" "observe_collect_function_app" {
       python_version = "3.9"
     }
     ip_restriction {
-      name = "Allow EventHub"
+      name = "Allow Trigger from Virtual Network"
       action = "Allow"
+      virtual_network_subnet_id = azurerm_subnet.observe_subnet.id
   }
   }
 
