@@ -12,7 +12,7 @@ resource "azurerm_subnet" "observe_subnet" {
   virtual_network_name = azurerm_virtual_network.observe_vnet.name
   address_prefixes     = ["10.0.1.0/24"]
 
-   delegation {
+  delegation {
     name = "delegation"
 
     service_delegation {
@@ -21,6 +21,6 @@ resource "azurerm_subnet" "observe_subnet" {
     }
   }
 
-  service_endpoints = ["Microsoft.Storage", "Microsoft.EventHub", "Microsoft.KeyVault"]
-  
+  service_endpoints = ["Microsoft.Storage", "Microsoft.EventHub", "Microsoft.KeyVault", "Microsoft.Web"]
+
 }

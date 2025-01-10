@@ -148,20 +148,20 @@ resource "azurerm_eventhub_authorization_rule" "observe_eventhub_access_policy" 
 }
 
 resource "azurerm_service_plan" "observe_service_plan" {
-  name                = "observeServicePlan-${var.observe_customer}${var.location}-${local.sub}"
-  location            = azurerm_resource_group.observe_resource_group.location
-  resource_group_name = azurerm_resource_group.observe_resource_group.name
-  os_type             = "Linux"
-  sku_name            = "EP1"
+  name                         = "observeServicePlan-${var.observe_customer}${var.location}-${local.sub}"
+  location                     = azurerm_resource_group.observe_resource_group.location
+  resource_group_name          = azurerm_resource_group.observe_resource_group.name
+  os_type                      = "Linux"
+  sku_name                     = "EP1"
   maximum_elastic_worker_count = 10
 }
 
 resource "azurerm_storage_account" "observe_storage_account" {
-  name                     = lower("${var.observe_customer}${local.region}${local.sub}")
-  resource_group_name      = azurerm_resource_group.observe_resource_group.name
-  location                 = azurerm_resource_group.observe_resource_group.location
-  account_tier             = "Standard"
-  account_replication_type = "LRS" # Probably want to use ZRS when we got prime time
+  name                            = lower("${var.observe_customer}${local.region}${local.sub}")
+  resource_group_name             = azurerm_resource_group.observe_resource_group.name
+  location                        = azurerm_resource_group.observe_resource_group.location
+  account_tier                    = "Standard"
+  account_replication_type        = "LRS" # Probably want to use ZRS when we got prime time
   allow_nested_items_to_be_public = false
 
   # network_rules {
@@ -172,10 +172,10 @@ resource "azurerm_storage_account" "observe_storage_account" {
 }
 
 resource "azurerm_linux_function_app" "observe_collect_function_app" {
-  name                = "observeApp-${var.observe_customer}-${var.location}-${local.sub}"
-  location            = azurerm_resource_group.observe_resource_group.location
-  resource_group_name = azurerm_resource_group.observe_resource_group.name
-  service_plan_id     = azurerm_service_plan.observe_service_plan.id
+  name                      = "observeApp-${var.observe_customer}-${var.location}-${local.sub}"
+  location                  = azurerm_resource_group.observe_resource_group.location
+  resource_group_name       = azurerm_resource_group.observe_resource_group.name
+  service_plan_id           = azurerm_service_plan.observe_service_plan.id
   virtual_network_subnet_id = azurerm_subnet.observe_subnet.id
 
   storage_account_name       = azurerm_storage_account.observe_storage_account.name
@@ -197,7 +197,7 @@ resource "azurerm_linux_function_app" "observe_collect_function_app" {
     EVENTHUB_TRIGGER_FUNCTION_EVENTHUB_NAME       = azurerm_eventhub.observe_eventhub.name
     EVENTHUB_TRIGGER_FUNCTION_EVENTHUB_CONNECTION = "${azurerm_eventhub_authorization_rule.observe_eventhub_access_policy.primary_connection_string}"
     # Pending resolution of https://github.com/hashicorp/terraform-provider-azurerm/issues/18026
-     APPINSIGHTS_INSTRUMENTATIONKEY = azurerm_application_insights.observe_insights.instrumentation_key 
+    APPINSIGHTS_INSTRUMENTATIONKEY = azurerm_application_insights.observe_insights.instrumentation_key
   }, var.app_settings)
 
   identity {
@@ -205,19 +205,17 @@ resource "azurerm_linux_function_app" "observe_collect_function_app" {
   }
 
   site_config {
-    elastic_instance_minimum = 1    # Add EP Settings 
+    elastic_instance_minimum  = 1 # Add EP Settings 
     pre_warmed_instance_count = 1
     application_stack {
       python_version = "3.9"
     }
     ip_restriction {
-      name = "AllowTriggerVNET"
-      action = "Allow"
+      name                      = "AllowTriggerVNET"
+      action                    = "Allow"
       virtual_network_subnet_id = azurerm_subnet.observe_subnet.id
+    }
   }
-  }
-
- 
 }
 
 #### Event Hub Debug 
