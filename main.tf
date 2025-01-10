@@ -35,12 +35,12 @@ resource "azurerm_key_vault" "key_vault" {
   location            = var.location
   resource_group_name = azurerm_resource_group.observe_resource_group.name
   tenant_id           = data.azuread_client_config.current.tenant_id
-  network_acls {
-    default_action = "Deny"
-    bypass         = "AzureServices"
-    virtual_network_subnet_ids = [azurerm_subnet.observe_subnet.id]
-    ip_rules = [] #You will have to add the IP address of the machine running terraform 
-  }
+  # network_acls {
+  #   default_action = "Deny"
+  #   bypass         = "AzureServices"
+  #   virtual_network_subnet_ids = [azurerm_subnet.observe_subnet.id]
+  #   ip_rules = [] #You will have to add the IP address of the machine running terraform 
+  # }
 
   sku_name = "standard"
 }
@@ -164,11 +164,11 @@ resource "azurerm_storage_account" "observe_storage_account" {
   account_replication_type = "LRS" # Probably want to use ZRS when we got prime time
   allow_nested_items_to_be_public = false
 
-  network_rules {
-    default_action = "Deny"
-    virtual_network_subnet_ids = [azurerm_subnet.observe_subnet.id]
-    ip_rules = [] #You will have to add the IP address of the machine running terraform
-  }
+  # network_rules {
+  #   default_action = "Deny"
+  #   virtual_network_subnet_ids = [azurerm_subnet.observe_subnet.id]
+  #   ip_rules = [] #You will have to add the IP address of the machine running terraform
+  # }
 }
 
 resource "azurerm_linux_function_app" "observe_collect_function_app" {
@@ -212,7 +212,6 @@ resource "azurerm_linux_function_app" "observe_collect_function_app" {
     }
     ip_restriction {
       name = "Allow EventHub"
-      service_tag = "EH_ALLOW"
       action = "Allow"
   }
   }
