@@ -166,6 +166,11 @@ resource "azurerm_linux_function_app" "observe_collect_function_app" {
   storage_account_name       = azurerm_storage_account.observe_storage_account.name
   storage_account_access_key = azurerm_storage_account.observe_storage_account.primary_access_key
 
+  # new settings
+  https_only = true
+  public_network_access_enabled = false
+
+
   app_settings = merge({
     WEBSITE_RUN_FROM_PACKAGE                      = var.func_url
     AzureWebJobsDisableHomepage                   = true
@@ -189,8 +194,12 @@ resource "azurerm_linux_function_app" "observe_collect_function_app" {
   }
 
   site_config {
+    http2_enabled = true
+    # moving to 1.3 requires update of azurerm to v 4.14
+    minimum_tls_version = "1.2"
+
     application_stack {
-      python_version = "3.9"
+      python_version = "3.12"
     }
   }
 }
