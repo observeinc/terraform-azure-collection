@@ -3,9 +3,9 @@ terraform {
     azurerm = {
       source  = "hashicorp/azurerm"
       version = ">=3.86.0, <4.0.0"
-    # required for setting minimum tls to 1.3
-    # but has new requirements not backward compatible
-    #  version = "=4.14.0"
+      # required for setting minimum tls to 1.3
+      # but has new requirements not backward compatible
+      #  version = "=4.14.0"
     }
   }
 }

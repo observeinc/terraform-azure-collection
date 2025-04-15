@@ -167,7 +167,7 @@ resource "azurerm_linux_function_app" "observe_collect_function_app" {
   storage_account_access_key = azurerm_storage_account.observe_storage_account.primary_access_key
 
   # new settings
-  https_only = true
+  https_only                    = true
   public_network_access_enabled = false
 
 
