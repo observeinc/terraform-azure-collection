@@ -151,6 +151,12 @@ variable "app_settings" {
   description = "Additional app settings"
 }
 
+variable "azure_subscription_whitelist" {
+  type = string
+  description = "If you want to filter down the Subscriptions to search within.  This may be necessary if you are reusing a Service Principal that has access to multiple Subscriptions.  This can contain a comma separated list or a single subscription"
+  default = "default"
+}
+
 # required if updating to higher versions of azurerm
 # variable "subscription_id" {
 #   type = string
