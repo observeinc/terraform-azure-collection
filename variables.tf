@@ -153,7 +153,7 @@ variable "app_settings" {
 
 variable "azure_subscription_whitelist" {
   type = string
-  description = "If you want to filter down the Subscriptions to search within.  This may be necessary if you are reusing a Service Principal that has access to multiple Subscriptions.  This can contain a comma separated list or a single subscription"
+  description = "If you want to filter down the Subscriptions to search within. 'default' will select the subscription where the function is running (blank has the same behavior). A comma separated list will select multiple subscriptions and exclude all others.  'all' is experimental and may cause errors and timeouts.  This should only be chosen at the recommendation of support.  This may be necessary if you are reusing a Service Principal that has access to multiple Subscriptions."
   default = "default"
 }
 
