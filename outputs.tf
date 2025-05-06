@@ -11,3 +11,7 @@ output "function_url" {
   description = "Function URL used for Observe collection."
   value       = var.func_url
 }
+
+output "outbound_ip_address_list" {
+  value = azurerm_linux_function_app.observe_collect_function_app.possible_outbound_ip_address_list
+}
