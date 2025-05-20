@@ -181,7 +181,6 @@ resource "azurerm_linux_function_app" "observe_collect_function_app" {
     AZURE_CLIENT_ID                               = azuread_application.observe_app_registration.client_id
     AZURE_CLIENT_SECRET                           = "@Microsoft.KeyVault(SecretUri=${azurerm_key_vault_secret.observe_password.id})"
     AZURE_CLIENT_LOCATION                         = lower(replace(var.location, " ", ""))
-    AZURE_SUBSCRIPTION_WHITELIST                  = var.azure_subscription_whitelist
     timer_resources_func_schedule                 = var.timer_resources_func_schedule
     timer_vm_metrics_func_schedule                = var.timer_vm_metrics_func_schedule
     EVENTHUB_TRIGGER_FUNCTION_EVENTHUB_NAME       = azurerm_eventhub.observe_eventhub.name

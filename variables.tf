@@ -147,14 +147,10 @@ variable "app_settings" {
   type = map(string)
   default = {
     FEATURE_FLAGS = ""
+    AZURE_SUBSCRIPTION_WHITELIST                  = "default"
+
   }
   description = "Additional app settings"
-}
-
-variable "azure_subscription_whitelist" {
-  type = string
-  description = "If you want to filter down the Subscriptions to search within. 'default' will select the subscription where the function is running (blank has the same behavior). A comma separated list will select multiple subscriptions and exclude all others.  'all' is experimental and may cause errors and timeouts.  This should only be chosen at the recommendation of support.  This may be necessary if you are reusing a Service Principal that has access to multiple Subscriptions."
-  default = "default"
 }
 
 # required if updating to higher versions of azurerm
