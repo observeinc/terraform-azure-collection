@@ -147,6 +147,8 @@ variable "app_settings" {
   type = map(string)
   default = {
     FEATURE_FLAGS = ""
+    AZURE_SUBSCRIPTION_WHITELIST                  = "default"
+
   }
   description = "Additional app settings"
 }
