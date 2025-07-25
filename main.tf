@@ -196,7 +196,7 @@ resource "azurerm_linux_function_app" "observe_collect_function_app" {
   site_config {
     http2_enabled = true
     # moving to 1.3 requires update of azurerm to v 4.14
-    minimum_tls_version = "1.2"
+    minimum_tls_version = "1.3"
 
     application_stack {
       python_version = "3.12"

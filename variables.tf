@@ -154,7 +154,7 @@ variable "app_settings" {
 }
 
 # required if updating to higher versions of azurerm
-# variable "subscription_id" {
-#   type = string
-#   description = "The subscription ID to use for Azure when creating, updating, modifying components"
-# }
+variable "subscription_id" {
+  type = string
+  description = "The subscription ID to use for Azure when creating, updating, modifying components."
+}
