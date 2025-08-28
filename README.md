@@ -121,7 +121,7 @@ To receive logs and metrics for resources please add the appropriate diagnostic 
 | <a name="provider_azuread"></a> [azuread](#provider\_azuread) | 3.0.1 |
 | <a name="provider_azurerm"></a> [azurerm](#provider\_azurerm) | 3.116.0 |
 
-## Modules
+## Modules  
 
 No modules.
 
