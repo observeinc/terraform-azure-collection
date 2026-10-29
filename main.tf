@@ -1,8 +1,6 @@
 # NOTE: Azure Functions Core Tools must be installed locally
 # https://learn.microsoft.com/en-us/azure/azure-functions/functions-run-local?tabs=v4%2Cmacos%2Ccsharp%2Cportal%2Cbash#install-the-azure-functions-core-tools
 locals {
-  is_windows    = substr(pathexpand("~"), 0, 1) == "/" ? false : true
-  sleep_command = local.is_windows == true ? "Start-Sleep" : "sleep"
   region        = lookup(var.location_abbreviation, var.location, "none-found")
   keyvault_name = "${local.region}${var.observe_customer}${local.sub}"
   sub           = substr(data.azurerm_subscription.primary.subscription_id, -8, -1)
@@ -184,7 +182,7 @@ resource "azurerm_linux_function_app" "observe_collect_function_app" {
     timer_resources_func_schedule                 = var.timer_resources_func_schedule
     timer_vm_metrics_func_schedule                = var.timer_vm_metrics_func_schedule
     EVENTHUB_TRIGGER_FUNCTION_EVENTHUB_NAME       = azurerm_eventhub.observe_eventhub.name
-    EVENTHUB_TRIGGER_FUNCTION_EVENTHUB_CONNECTION = "${azurerm_eventhub_authorization_rule.observe_eventhub_access_policy.primary_connection_string}"
+    EVENTHUB_TRIGGER_FUNCTION_EVENTHUB_CONNECTION = azurerm_eventhub_authorization_rule.observe_eventhub_access_policy.primary_connection_string
     # Pending resolution of https://github.com/hashicorp/terraform-provider-azurerm/issues/18026
     # APPINSIGHTS_INSTRUMENTATIONKEY = azurerm_application_insights.observe_insights.instrumentation_key 
   }, var.app_settings)

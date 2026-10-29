@@ -45,7 +45,7 @@ resource "observe_datastream_token" "github_actions_branch_token" {
 
 ##  AZURE TF COLLECTION ## 
 #############################################
-module "terraform-azure-collection" {
+module "terraform_azure_collection" {
   source                  = "../../"
   observe_customer        = var.observe_customer
   observe_domain          = var.observe_domain

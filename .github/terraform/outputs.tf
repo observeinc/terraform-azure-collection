@@ -11,5 +11,5 @@ output "azure_dataset_id" {
 
 output "azure_collection_function" {
   description = "Azure Dataset Id"
-  value       = module.terraform-azure-collection.function_url
+  value       = module.terraform_azure_collection.function_url
 } 
