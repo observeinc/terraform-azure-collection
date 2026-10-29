@@ -7,7 +7,7 @@ terraform {
       version = ">= 0.13.3"
     }
   }
-  required_version = ">= 1.0"
+  required_version = ">= 1.1"
 }
 
 
@@ -53,6 +53,12 @@ module "terraform_azure_collection" {
   observe_token           = observe_datastream_token.github_actions_branch_token.secret
   prevent_rg_deletion     = false
   function_app_debug_logs = true
+}
+
+# Module label was renamed to snake_case; keep existing branch state addresses.
+moved {
+  from = module.terraform-azure-collection
+  to   = module.terraform_azure_collection
 }
 
 ##############################################
