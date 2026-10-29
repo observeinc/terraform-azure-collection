@@ -15,7 +15,7 @@ else:
 # Remove /refs/heads/ from the branch name
 # Replace "/" with "-" in the branch name
 # Example: refs/heads/nikhil/add-CI-OB-29418 becomes nikhil-add-CI-OB-29418
-branch = branch.replace("refs/heads/", "").replace("/", "-")
+branch = branch.replace("refs/heads/", "").replace("/", "-").replace(".", "-")
 
 # Convert branch name to lowercase, remove special characters, and save to branch_concat
 # Remove special characters
