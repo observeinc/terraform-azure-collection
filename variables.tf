@@ -32,7 +32,7 @@ variable "timer_vm_metrics_func_schedule" {
 variable "func_url" {
   type        = string
   description = "Observe Collect Function source URL zip"
-  default     = "https://observeinc.s3.us-west-2.amazonaws.com/azure/azure-collection-functions-0.11.7.zip"
+  default     = "https://observeinc.s3.us-west-2.amazonaws.com/azure/azure-collection-functions-0.11.10.zip"
 }
 
 # Use Name for value
@@ -146,8 +146,8 @@ variable "function_app_debug_logs" {
 variable "app_settings" {
   type = map(string)
   default = {
-    FEATURE_FLAGS = ""
-    AZURE_SUBSCRIPTION_WHITELIST                  = "default"
+    FEATURE_FLAGS                = ""
+    AZURE_SUBSCRIPTION_WHITELIST = "default"
 
   }
   description = "Additional app settings"

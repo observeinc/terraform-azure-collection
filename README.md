@@ -72,6 +72,16 @@ location = "<AZURE_REGIONAL_NAME>"
 
 Collection should begin shortly
 
+## Upgrading an Existing Deployment
+
+Azure runs the function package referenced by `func_url` (via `WEBSITE_RUN_FROM_PACKAGE`), so an existing deployment keeps running its original package until you re-apply the module.
+
+1. Update your copy of this module (`git pull`, or bump the `ref`/version if you consume it as a module source).
+2. If you set `func_url` explicitly in your variables, change it to `https://observeinc.s3.us-west-2.amazonaws.com/azure/azure-collection-functions-0.11.10.zip` or remove the override to use the module default.
+3. Run `terraform init -upgrade` and then `terraform apply`. Confirm the plan shows `WEBSITE_RUN_FROM_PACKAGE` changing to the new package URL.
+
+Function package 0.11.10 or later is required: it ships an updated CA trust bundle (certifi 2026.10.23) that no longer trusts the compromised emSign/eMudhra certificate chain.
+
 ## Azure Resource Configuration
 
 To receive logs and metrics for resources please add the appropriate diagnostic settings to each.  See "Azure Resource Configuration" section in [Observe's Azure Integration page](https://docs.observeinc.com/en/latestcontent/integrations/azure/azure.html) for more info.
@@ -155,7 +165,7 @@ No modules.
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
 | <a name="input_app_settings"></a> [app\_settings](#input\_app\_settings) | Additional app settings | `map(string)` | <pre>{<br>  "FEATURE_FLAGS": ""<br>}</pre> | no |
-| <a name="input_func_url"></a> [func\_url](#input\_func\_url) | Observe Collect Function source URL zip | `string` | `"https://observeinc.s3.us-west-2.amazonaws.com/azure/azure-collection-functions-0.11.5.zip"` | no |
+| <a name="input_func_url"></a> [func\_url](#input\_func\_url) | Observe Collect Function source URL zip | `string` | `"https://observeinc.s3.us-west-2.amazonaws.com/azure/azure-collection-functions-0.11.10.zip"` | no |
 | <a name="input_function_app_debug_logs"></a> [function\_app\_debug\_logs](#input\_function\_app\_debug\_logs) | Enables routing of function app logs to eventhub for debugging eventhub & function app | `bool` | `false` | no |
 | <a name="input_location"></a> [location](#input\_location) | Azure Location to deploy resources | `string` | `"eastus"` | no |
 | <a name="input_location_abbreviation"></a> [location\_abbreviation](#input\_location\_abbreviation) | A unique, short abbreviation to use for each location when assiging names to resources | `map(string)` | <pre>{<br>  "asiapacific": "ap",<br>  "australia": "as",<br>  "australiacentral": "ac",<br>  "australiacentral2": "ac2",<br>  "australiaeast": "ae",<br>  "australiasoutheast": "ase",<br>  "brazil": "b",<br>  "brazilsouth": "bs",<br>  "brazilsoutheast": "bse",<br>  "canada": "c",<br>  "canadacentral": "cc",<br>  "canadaeast": "ce",<br>  "centralindia": "ci",<br>  "centralus": "cu",<br>  "centraluseuap": "cue",<br>  "centralusstage": "cus",<br>  "eastasia": "ea",<br>  "eastasiastage": "eas",<br>  "eastus": "eu",<br>  "eastus2": "eu2",<br>  "eastus2euap": "eu2e",<br>  "eastus2stage": "eu2s",<br>  "eastusstage": "eus",<br>  "eastusstg": "eustg",<br>  "europe": "e",<br>  "france": "f",<br>  "francecentral": "fc",<br>  "francesouth": "fs",<br>  "germany": "g",<br>  "germanynorth": "gn",<br>  "germanywestcentral": "gwc",<br>  "global": "glob",<br>  "india": "i",<br>  "japan": "j",<br>  "japaneast": "je",<br>  "japanwest": "jw",<br>  "jioindiacentral": "jic",<br>  "jioindiawest": "jiw",<br>  "korea": "k",<br>  "koreacentral": "kc",<br>  "koreasouth": "ks",<br>  "northcentralus": "ncu",<br>  "northcentralusstage": "ncus",<br>  "northeurope": "ne",<br>  "norway": "n",<br>  "norwayeast": "nwe",<br>  "norwaywest": "nww",<br>  "qatarcentral": "qc",<br>  "singapore": "s",<br>  "southafrica": "sa",<br>  "southafricanorth": "san",<br>  "southafricawest": "saw",<br>  "southcentralus": "scu",<br>  "southcentralusstage": "scus",<br>  "southcentralusstg": "sctg",<br>  "southeastasia": "sea",<br>  "southeastasiastage": "sas",<br>  "southindia": "si",<br>  "swedencentral": "sc",<br>  "switzerland": "sz",<br>  "switzerlandnorth": "sn",<br>  "switzerlandwest": "sw",<br>  "uae": "uae",<br>  "uaecentral": "uc",<br>  "uaenorth": "un",<br>  "uk": "uk",<br>  "uksouth": "us",<br>  "ukwest": "uw",<br>  "unitedstates": "us",<br>  "unitedstateseuap": "use",<br>  "westcentralus": "wcu",<br>  "westeurope": "we",<br>  "westindia": "wi",<br>  "westus": "wu",<br>  "westus2": "wu2",<br>  "westus2stage": "wu2s",<br>  "westus3": "wu3",<br>  "westusstage": "wus"<br>}</pre> | no |
