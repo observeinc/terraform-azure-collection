@@ -1,10 +1,53 @@
 name: Release and push
+
+# Manual release. Tags the current commit from conventional commits and publishes
+# a GitHub Release. It does not push a commit to main, because main is protected
+# (PR + review required) and the default GITHUB_TOKEN cannot push to it.
 on:
   workflow_dispatch:
+    inputs:
+      dry-run:
+        description: Compute the next version and notes only; do not tag or publish.
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
 
 jobs:
-  bump:
-    uses: observeinc/.github/.github/workflows/terraform_release.yaml@main
-    secrets: inherit
-    with:
-      release-count: 1
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Conventional Changelog Action
+        id: changelog
+        uses: TriPSs/conventional-changelog-action@v5
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          skip-version-file: 'true'
+          skip-commit: 'true'
+          git-push: 'false'
+          release-count: 1
+
+      - name: Show result
+        run: |
+          echo "skipped=${{ steps.changelog.outputs.skipped }} tag=${{ steps.changelog.outputs.tag }}"
+          echo "${{ github.event.inputs.dry-run }}" | grep -q true && echo "Dry run: nothing will be pushed."
+
+      - name: Push tag
+        if: ${{ steps.changelog.outputs.skipped == 'false' && !inputs.dry-run }}
+        env:
+          TAG: ${{ steps.changelog.outputs.tag }}
+        run: git push origin "refs/tags/${TAG}"
+
+      - name: Create Release
+        if: ${{ steps.changelog.outputs.skipped == 'false' && !inputs.dry-run }}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ steps.changelog.outputs.tag }}
+          NOTES: ${{ steps.changelog.outputs.clean_changelog }}
+        run: gh release create "$TAG" --verify-tag --title "$TAG" --notes "$NOTES" --latest
