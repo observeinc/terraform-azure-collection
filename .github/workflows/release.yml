@@ -35,8 +35,7 @@ jobs:
 
       - name: Show result
         run: |
-          echo "skipped=${{ steps.changelog.outputs.skipped }} tag=${{ steps.changelog.outputs.tag }}"
-          echo "${{ github.event.inputs.dry-run }}" | grep -q true && echo "Dry run: nothing will be pushed."
+          echo "skipped=${{ steps.changelog.outputs.skipped }} tag=${{ steps.changelog.outputs.tag }} dry-run=${{ inputs.dry-run }}"
 
       - name: Push tag
         if: ${{ steps.changelog.outputs.skipped == 'false' && !inputs.dry-run }}
